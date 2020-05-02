@@ -55,7 +55,7 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
 
   UpdateDiary:
-    handler: src/lambda/http/UpdateDiary.handler
+    handler: src/lambda/http/updateDiary.handler
     events:
       - http:
           method: patch
@@ -69,7 +69,7 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
 
   DeleteDiary:
-    handler: src/lambda/http/deleteDiart.handler
+    handler: src/lambda/http/deleteDiary.handler
     events:
       - http:
           method: delete
