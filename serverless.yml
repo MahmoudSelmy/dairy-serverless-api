@@ -68,7 +68,7 @@ functions:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
 
-  DeleteTodo:
+  DeleteDiary:
     handler: src/lambda/http/deleteDiart.handler
     events:
       - http:
@@ -87,7 +87,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: diary/{diaryId}/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -99,7 +99,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}/index/${self:provider.environment.TODO_ID_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}/index/${self:provider.environment.DIARY_ID_INDEX}
       - Effect: Allow
         Action:
           - s3:PutObject
@@ -108,7 +108,7 @@ functions:
 
 resources:
   Resources:
-    TodosDynamoDBTable:
+    DiaryDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:

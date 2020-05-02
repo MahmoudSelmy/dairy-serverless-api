@@ -6,7 +6,7 @@ import {getUserId} from '../utils'
 import { deleteDiary } from '../../buisnessLogic/diary'
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const diaryId = event.pathParameters.todoId
+  const diaryId = event.pathParameters.diaryId
 
   const userId = getUserId(event)
 
