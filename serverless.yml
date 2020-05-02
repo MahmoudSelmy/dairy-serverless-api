@@ -44,7 +44,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos
+          path: diary
           cors: true
           authorizer: Auth
     reqValidatorName: RequestBodyValidator
@@ -54,13 +54,12 @@ functions:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
 
-  # TODO: Configure this function
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+  UpdateDiary:
+    handler: src/lambda/http/UpdateDiary.handler
     events:
       - http:
           method: patch
-          path: todos/{todoId}
+          path: diary/{diaryId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -69,7 +68,6 @@ functions:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
 
-  # TODO: Configure this function
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
