@@ -24,9 +24,8 @@ functions:
 
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
-    
-  # TODO: Configure this function
-  GetTodos:
+  
+  GetDiary:
     handler: src/lambda/http/getDiary.handler
     events:
       - http:
@@ -40,8 +39,8 @@ functions:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
   
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  CreateDiary:
+    handler: src/lambda/http/createDiary.handler
     events:
       - http:
           method: post
