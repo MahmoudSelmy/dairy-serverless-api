@@ -13,10 +13,10 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
-    TODO_ID_INDEX: TodoIdIndex
+    DIARY_TABLE: Diarys-${self:provider.stage}
+    DIARY_ID_INDEX: DiaryIdIndex
     AUTH_0_SECRET: iPTMkv2faqZ3ZlktQI-a0yID6ZX_DQi1vCTrtmRSUd_REm7crLKlP3ny9teyZcPT
-    TODOS_S3_BUCKET: serverless-todo-attachment-selmy-${self:provider.stage}
+    DIARY_S3_BUCKET: serverless-diary-attachment-selmy-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 600
 
 
@@ -120,19 +120,19 @@ resources:
             AttributeType: S
           - AttributeName: createdAt  #sort
             AttributeType: S
-          - AttributeName: todoId   #index
+          - AttributeName: diaryId   #index
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: diaryId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.DIARY_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODO_ID_INDEX}
+          - IndexName: ${self:provider.environment.DIARY_ID_INDEX}
             KeySchema:
-              - AttributeName: todoId # partition
+              - AttributeName: diaryId # partition
                 KeyType: HASH
               - AttributeName: createdAt # index
                 KeyType: RANGE
