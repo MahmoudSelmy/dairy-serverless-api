@@ -13,10 +13,10 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
   environment:
-    DIARY_TABLE: Diarys-${self:provider.stage}
-    DIARY_ID_INDEX: DiaryIdIndex
+    MEMORIES_TABLE: Memories-${self:provider.stage}
+    MEMORIES_ID_INDEX: MemoryIdIndex
     AUTH_0_SECRET: iPTMkv2faqZ3ZlktQI-a0yID6ZX_DQi1vCTrtmRSUd_REm7crLKlP3ny9teyZcPT
-    DIARY_S3_BUCKET: serverless-diary-attachment-selmy-${self:provider.stage}
+    MEMORIES_S3_BUCKET: serverless-memories-attachment-selmy-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 600
 
 
@@ -25,26 +25,26 @@ functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
   
-  GetDiary:
-    handler: src/lambda/http/getDiary.handler
+  GetMemories:
+    handler: src/lambda/http/getMemories.handler
     events:
       - http:
           method: get
-          path: diary
+          path: memory
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MEMORIES_TABLE}
   
-  CreateDiary:
-    handler: src/lambda/http/createDiary.handler
+  CreateMemory:
+    handler: src/lambda/http/createMemory.handler
     events:
       - http:
           method: post
-          path: diary
+          path: memory
           cors: true
           authorizer: Auth
     reqValidatorName: RequestBodyValidator
@@ -52,42 +52,42 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MEMORIES_TABLE}
 
-  UpdateDiary:
-    handler: src/lambda/http/updateDiary.handler
+  UpdateMemory:
+    handler: src/lambda/http/updateMemory.handler
     events:
       - http:
           method: patch
-          path: diary/{diaryId}
+          path: memory/{memoryId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MEMORIES_TABLE}
 
-  DeleteDiary:
-    handler: src/lambda/http/deleteDiary.handler
+  DeleteMemory:
+    handler: src/lambda/http/deleteMemory.handler
     events:
       - http:
           method: delete
-          path: diary/{diaryId}
+          path: memory/{memoryId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MEMORIES_TABLE}
 
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
           method: post
-          path: diary/{diaryId}/attachment
+          path: memory/{memoryId}/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -95,20 +95,20 @@ functions:
         Action:
           - dynamodb:Query
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MEMORIES_TABLE}
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARY_TABLE}/index/${self:provider.environment.DIARY_ID_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MEMORIES_TABLE}/index/${self:provider.environment.MEMORIES_ID_INDEX}
       - Effect: Allow
         Action:
           - s3:PutObject
           - s3:GetObject
-        Resource: arn:aws:s3:::${self:provider.environment.DIARY_S3_BUCKET}/*
+        Resource: arn:aws:s3:::${self:provider.environment.MEMORIES_S3_BUCKET}/*
 
 resources:
   Resources:
-    DiaryDynamoDBTable:
+    MemoryDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
@@ -116,19 +116,19 @@ resources:
             AttributeType: S
           - AttributeName: createdAt  #sort
             AttributeType: S
-          - AttributeName: diaryId   #index
+          - AttributeName: memoryId   #index
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: diaryId
+          - AttributeName: memoryId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.DIARY_TABLE}
+        TableName: ${self:provider.environment.MEMORIES_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.DIARY_ID_INDEX}
+          - IndexName: ${self:provider.environment.MEMORIES_ID_INDEX}
             KeySchema:
-              - AttributeName: diaryId # partition
+              - AttributeName: memoryId # partition
                 KeyType: HASH
               - AttributeName: createdAt # index
                 KeyType: RANGE
@@ -138,7 +138,7 @@ resources:
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:provider.environment.DIARY_S3_BUCKET}
+        BucketName: ${self:provider.environment.MEMORIES_S3_BUCKET}
         CorsConfiguration:
           CorsRules:
             -
@@ -165,7 +165,7 @@ resources:
               Effect: Allow
               Principal: '*'
               Action: 's3:GetObject'
-              Resource: 'arn:aws:s3:::${self:provider.environment.DIARY_S3_BUCKET}/*'
+              Resource: 'arn:aws:s3:::${self:provider.environment.MEMORIES_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
     
     GatewayResponseDefault4XX:

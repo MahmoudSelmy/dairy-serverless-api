@@ -4,30 +4,30 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 import * as AWS from 'aws-sdk';
 import * as AWSXRay from 'aws-xray-sdk'
 
-import { addAttachmentUrlToDiary } from '../../buisnessLogic/diary'
+import { addAttachmentUrlToMemory } from '../../buisnessLogic/memory'
 
 const XAWSS3 = AWSXRay.captureAWS(AWS)
 const s3 = new XAWSS3.S3({
   signatureVersion: 'v4'
 })
 
-const bucketName = process.env.DIARY_S3_BUCKET;
+const bucketName = process.env.MEMORIES_S3_BUCKET;
 const urlExpiration = Number(process.env.SIGNED_URL_EXPIRATION);
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const diaryId = event.pathParameters.diaryId
+  const memoryId = event.pathParameters.memoryId
 
 
   const url = s3.getSignedUrl('putObject', 
   {
     Bucket: bucketName,
-    Key: diaryId,
+    Key: memoryId,
     Expires: urlExpiration
   })
 
-  const attachmenturl = `https://${bucketName}.s3.amazonaws.com/${diaryId}`
+  const attachmenturl = `https://${bucketName}.s3.amazonaws.com/${memoryId}`
 
-  const success = await addAttachmentUrlToDiary(diaryId, attachmenturl)
+  const success = await addAttachmentUrlToMemory(memoryId, attachmenturl)
 
   if (success)
   {
